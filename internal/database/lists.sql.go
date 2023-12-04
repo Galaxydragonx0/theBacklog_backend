@@ -12,25 +12,6 @@ import (
 	"github.com/google/uuid"
 )
 
-const createMovieList = `-- name: CreateMovieList :one
-Insert into movie_lists(id, user_id, list)
-VALUES ($1, $2, $3)
-RETURNING id, user_id, list
-`
-
-type CreateMovieListParams struct {
-	ID     uuid.UUID
-	UserID uuid.UUID
-	List   json.RawMessage
-}
-
-func (q *Queries) CreateMovieList(ctx context.Context, arg CreateMovieListParams) (MovieList, error) {
-	row := q.db.QueryRowContext(ctx, createMovieList, arg.ID, arg.UserID, arg.List)
-	var i MovieList
-	err := row.Scan(&i.ID, &i.UserID, &i.List)
-	return i, err
-}
-
 const getMovieListByUser = `-- name: GetMovieListByUser :one
 SELECT list from movie_lists
 WHERE user_id = $1

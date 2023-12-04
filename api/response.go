@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 )
@@ -18,6 +19,7 @@ func respondWithJson(w http.ResponseWriter, code int, payload interface{}) {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(200)
 	w.Write(respByteArray)
+	fmt.Println(string(respByteArray))
 }
 
 func respondWithError(w http.ResponseWriter, code int, msg string) {
