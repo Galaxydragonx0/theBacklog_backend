@@ -7,10 +7,75 @@ package database
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
 )
+
+const createBookList = `-- name: CreateBookList :exec
+Insert into book_lists(id, user_id, list)
+VALUES ($1, $2, $3)
+`
+
+type CreateBookListParams struct {
+	ID     uuid.UUID
+	UserID uuid.UUID
+	List   json.RawMessage
+}
+
+func (q *Queries) CreateBookList(ctx context.Context, arg CreateBookListParams) error {
+	_, err := q.db.ExecContext(ctx, createBookList, arg.ID, arg.UserID, arg.List)
+	return err
+}
+
+const createGameList = `-- name: CreateGameList :exec
+Insert into game_lists(id, user_id, list)
+VALUES ($1, $2, $3)
+`
+
+type CreateGameListParams struct {
+	ID     uuid.UUID
+	UserID uuid.UUID
+	List   json.RawMessage
+}
+
+func (q *Queries) CreateGameList(ctx context.Context, arg CreateGameListParams) error {
+	_, err := q.db.ExecContext(ctx, createGameList, arg.ID, arg.UserID, arg.List)
+	return err
+}
+
+const createMovieList = `-- name: CreateMovieList :exec
+Insert into movie_lists(id, user_id, list)
+VALUES ($1, $2, $3)
+`
+
+type CreateMovieListParams struct {
+	ID     uuid.UUID
+	UserID uuid.UUID
+	List   json.RawMessage
+}
+
+func (q *Queries) CreateMovieList(ctx context.Context, arg CreateMovieListParams) error {
+	_, err := q.db.ExecContext(ctx, createMovieList, arg.ID, arg.UserID, arg.List)
+	return err
+}
+
+const createShowList = `-- name: CreateShowList :exec
+Insert into show_lists(id, user_id, list)
+VALUES ($1, $2, $3)
+`
+
+type CreateShowListParams struct {
+	ID     uuid.UUID
+	UserID uuid.UUID
+	List   json.RawMessage
+}
+
+func (q *Queries) CreateShowList(ctx context.Context, arg CreateShowListParams) error {
+	_, err := q.db.ExecContext(ctx, createShowList, arg.ID, arg.UserID, arg.List)
+	return err
+}
 
 const createUser = `-- name: CreateUser :one
 INSERT into users(id, created_at, updated_at, email, api_key)
@@ -32,8 +97,30 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		arg.UpdatedAt,
 		arg.Email,
 	)
+	
+	err := q.CreateMovieList(ctx, CreateMovieListParams{
+		ID: uuid.New(),
+		UserID: arg.ID,
+		List: json.RawMessage("[{}]"),
+	})
+	err = q.CreateShowList(ctx, CreateShowListParams{
+		ID: uuid.New(),
+		UserID: arg.ID,
+		List: json.RawMessage("[{}]"),
+	})
+	err = q.CreateBookList(ctx, CreateBookListParams{
+		ID: uuid.New(),
+		UserID: arg.ID,
+		List: json.RawMessage("[{}]"),
+	})
+	err = q.CreateGameList(ctx, CreateGameListParams{
+		ID: uuid.New(),
+		UserID: arg.ID,
+		List: json.RawMessage("[{}]"),
+	})
+
 	var i User
-	err := row.Scan(
+	err = row.Scan(
 		&i.ID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
