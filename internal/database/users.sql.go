@@ -97,26 +97,26 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		arg.UpdatedAt,
 		arg.Email,
 	)
-	
+
 	err := q.CreateMovieList(ctx, CreateMovieListParams{
-		ID: uuid.New(),
+		ID:     uuid.New(),
 		UserID: arg.ID,
-		List: json.RawMessage("[{}]"),
+		List:   json.RawMessage("[]"),
 	})
 	err = q.CreateShowList(ctx, CreateShowListParams{
-		ID: uuid.New(),
+		ID:     uuid.New(),
 		UserID: arg.ID,
-		List: json.RawMessage("[{}]"),
+		List:   json.RawMessage("[]"),
 	})
 	err = q.CreateBookList(ctx, CreateBookListParams{
-		ID: uuid.New(),
+		ID:     uuid.New(),
 		UserID: arg.ID,
-		List: json.RawMessage("[{}]"),
+		List:   json.RawMessage("[]"),
 	})
 	err = q.CreateGameList(ctx, CreateGameListParams{
-		ID: uuid.New(),
+		ID:     uuid.New(),
 		UserID: arg.ID,
-		List: json.RawMessage("[{}]"),
+		List:   json.RawMessage("[]"),
 	})
 
 	var i User
