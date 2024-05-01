@@ -9,7 +9,7 @@ import (
 
 func respondWithJson(w http.ResponseWriter, code int, payload interface{}) {
 	respByteArray, err := json.Marshal(payload)
-
+	fmt.Println(respByteArray)
 	if err != nil {
 		log.Printf("Failed to marshal to JSON response: %v", payload)
 		w.WriteHeader(500)
@@ -17,7 +17,7 @@ func respondWithJson(w http.ResponseWriter, code int, payload interface{}) {
 	}
 
 	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(200)
+ 	w.WriteHeader(code)
 	w.Write(respByteArray)
 	fmt.Println(string(respByteArray))
 }
@@ -28,8 +28,9 @@ func respondWithError(w http.ResponseWriter, code int, msg string) {
 	}
 
 	type ErrorResponse struct {
-		Error string `json:"error"`
+		Error        string `json:"error"`
+		ResponseCode int    `json:"code"`
 	}
 
-	respondWithJson(w, code, ErrorResponse{Error: msg})
+	respondWithJson(w, code, ErrorResponse{Error: msg, ResponseCode: code})
 }

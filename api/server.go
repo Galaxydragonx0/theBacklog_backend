@@ -75,13 +75,31 @@ func (S *Server) Start() error {
 			w.Write([]byte(resp))
 		})
 
-	router.Post("/createUser", S.handlerCreateUser)
+	router.Post("/register", S.handlerCreateUser)
 
-	router.Get("/movies", S.middlewareAuth(S.handlerGetMovieList))
+	router.Post("/login", S.handlerUserLogin)
+
+	router.Get("/getUser", S.middlewareAuth(S.handlerGetUserByAPI))
+
+	// MOVIE LIST
+	router.Get("/getMovies", S.middlewareAuth(S.handlerGetMovieList))
 
 	router.Post("/movies", S.middlewareAuth(S.handlerUpdateMovieList))
 
-	router.Get("/movieSearch/{mName}", S.movieSearchQuery)
+	// GAMES LIST
+	router.Get("/getGames", S.middlewareAuth(S.handlerGetGameList))
+
+	router.Post("/games", S.middlewareAuth(S.handlerUpdateGameList))
+
+	// COMPLETED TITLES
+	router.Post("/completed", S.middlewareAuth(S.handlerUpdateCompletedList))
+
+	router.Get("/getCompleted", S.middlewareAuth(S.handlerGetCompletedList))
+
+	// SEARCH QUERY
+	router.Get("/movieSearch/{mName}/{page}", S.movieSearchQuery)
+
+	router.Get("/gameSearch/{mName}/{page}", S.gameSearchQuery)
 
 	fmt.Printf("Server is serving on: http://localhost%s \n", S.addr)
 
