@@ -23,3 +23,10 @@ VALUES ($1, $2, $3);
 Insert into game_lists(id, user_id, list)
 VALUES ($1, $2, $3);
 
+-- name: GetUser :one
+SELECT * FROM users
+WHERE email =$1;
+
+-- name: CreateCompletedList :exec
+Insert into completed_titles(id, user_id, list)
+VALUES ($1, $2, $3);
