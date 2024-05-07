@@ -12,6 +12,18 @@ import (
 	"github.com/google/uuid"
 )
 
+const getBookListByUser = `-- name: GetBookListByUser :one
+SELECT list from book_lists
+WHERE user_id = $1
+`
+
+func (q *Queries) GetBookListByUser(ctx context.Context, userID uuid.UUID) (json.RawMessage, error) {
+	row := q.db.QueryRowContext(ctx, getBookListByUser, userID)
+	var list json.RawMessage
+	err := row.Scan(&list)
+	return list, err
+}
+
 const getCompletedListByUser = `-- name: GetCompletedListByUser :one
 SELECT list from completed_titles
 WHERE user_id = $1
@@ -46,6 +58,23 @@ func (q *Queries) GetMovieListByUser(ctx context.Context, userID uuid.UUID) (jso
 	var list json.RawMessage
 	err := row.Scan(&list)
 	return list, err
+}
+
+const updateBookList = `-- name: UpdateBookList :exec
+UPDATE book_lists
+  set list = $1
+WHERE user_id = $2
+RETURNING id, user_id, list
+`
+
+type UpdateBookListParams struct {
+	List   json.RawMessage
+	UserID uuid.UUID
+}
+
+func (q *Queries) UpdateBookList(ctx context.Context, arg UpdateBookListParams) error {
+	_, err := q.db.ExecContext(ctx, updateBookList, arg.List, arg.UserID)
+	return err
 }
 
 const updateCompletedList = `-- name: UpdateCompletedList :exec

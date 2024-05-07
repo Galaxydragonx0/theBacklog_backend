@@ -29,3 +29,13 @@ UPDATE game_lists
   set list = $1
 WHERE user_id = $2
 RETURNING *;
+
+-- name: GetBookListByUser :one
+SELECT list from book_lists
+WHERE user_id = $1;
+
+-- name: UpdateBookList :exec
+UPDATE book_lists
+  set list = $1
+WHERE user_id = $2
+RETURNING *;
