@@ -1,7 +1,6 @@
 package api
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"log"
@@ -10,10 +9,7 @@ import (
 	"strconv"
 	"strings"
 	"theBacklog/backend/internal/database"
-	"time"
-	"unsafe"
 
-	"github.com/dimuska139/rawg-sdk-go/v3"
 	"github.com/go-chi/chi"
 )
 
@@ -24,7 +20,7 @@ func (s *Server) handlerGetGameList(w http.ResponseWriter, r *http.Request, user
 		respondWithError(w, 400, fmt.Sprintf("Couldn't get games: %v", err))
 	}
 
-	respondWithJson(w, 300, gameList)
+	respondWithJson(w, 200, gameList)
 }
 
 func (s *Server) handlerUpdateGameList(w http.ResponseWriter, r *http.Request, user database.User) {
@@ -146,38 +142,45 @@ func (s *Server) movieSearchQuery(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) gameSearchQuery(w http.ResponseWriter, r *http.Request) {
-
 	gameName := chi.URLParam(r, "gName")
-	pageNum, _ := strconv.Atoi(chi.URLParam(r, "page"))
-	config := rawg.Config{
-		ApiKey:   os.Getenv("rawg_game_api"), // Your personal API key (see https://rawg.io/apidocs)
-		Language: "en",
-		Rps:      5,
+	pageNum := chi.URLParam(r, "page")
+	searchOffset := 0
+	searchPageNum, _ := strconv.Atoi(pageNum)
+
+	fmt.Println("This is the name:", gameName)
+
+	if searchPageNum > 1 {
+		searchOffset = (searchPageNum - 1) * 15
 	}
 
-	client := rawg.NewClient(http.DefaultClient, &config)
-	filter := rawg.NewGamesFilter().
-		SetSearch(gameName).
-		SetPage(pageNum).
-		SetPageSize(10).
-		ExcludeCollection(1).
-		WithoutParents()
+	gameName = strings.ReplaceAll(gameName, " ", "%20")
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(time.Millisecond*500))
-	defer cancel()
-	data, total, err := client.GetGames(ctx, filter)
+	endpoint := fmt.Sprintf(`http://www.giantbomb.com/api/games/?api_key=%s&limit=15&offset=%d&filter=name:%s&format=json&field_list=id,genres,api_detail_url,name,image,deck&page=%s,`, os.Getenv("game_api_key"), searchOffset, gameName, pageNum)
 
-	fmt.Println("this is the data from search", data, "this is the amount", total)
+	fmt.Println("This is the endpoint:", endpoint)
+
+	req, err := http.NewRequest("GET", endpoint, nil)
+	req.Header.Add("accept", "application/json")
+	// req.Header.Add("Authorization", os.Getenv("tmdb_auth_token"))
+
+	if err != nil {
+		fmt.Print(err.Error())
+		os.Exit(1)
+	}
+
+	res, err := http.DefaultClient.Do(req)
+
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	//convert data into bytes using whatever this is
-	size := unsafe.Sizeof(data)
-	gameResponseBytes := unsafe.Slice((*byte)(unsafe.Pointer(&data)), int(size))
+	defer res.Body.Close()
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	//use data to send back to user
-	respondToSearch(w, 200, gameResponseBytes)
+	respondToSearch(w, 200, body)
 }
 
 func respondToSearch(w http.ResponseWriter, code int, resp []byte) {

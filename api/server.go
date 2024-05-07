@@ -99,7 +99,7 @@ func (S *Server) Start() error {
 	// SEARCH QUERY
 	router.Get("/movieSearch/{mName}/{page}", S.movieSearchQuery)
 
-	router.Get("/gameSearch/{mName}/{page}", S.gameSearchQuery)
+	router.Get("/gameSearch/{gName}/{page}", S.gameSearchQuery)
 
 	fmt.Printf("Server is serving on: http://localhost%s \n", S.addr)
 
