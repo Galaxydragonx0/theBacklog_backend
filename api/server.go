@@ -86,10 +86,20 @@ func (S *Server) Start() error {
 
 	router.Post("/movies", S.middlewareAuth(S.handlerUpdateMovieList))
 
+	//SHOW LIST
+	router.Get("/getShows", S.middlewareAuth(S.handlerGetShowList))
+
+	router.Post("/shows", S.middlewareAuth(S.handlerUpdateShowList))
+
 	// GAMES LIST
 	router.Get("/getGames", S.middlewareAuth(S.handlerGetGameList))
 
 	router.Post("/games", S.middlewareAuth(S.handlerUpdateGameList))
+
+	//BOOK LIST
+	router.Get("/getBooks", S.middlewareAuth(S.handlerGetBookList))
+
+	router.Post("/books", S.middlewareAuth(S.handlerUpdateBookList))
 
 	// COMPLETED TITLES
 	router.Post("/completed", S.middlewareAuth(S.handlerUpdateCompletedList))
@@ -99,7 +109,11 @@ func (S *Server) Start() error {
 	// SEARCH QUERY
 	router.Get("/movieSearch/{mName}/{page}", S.movieSearchQuery)
 
+	router.Get("/showSearch/{sName}/{page}", S.showSearchQuery)
+
 	router.Get("/gameSearch/{gName}/{page}", S.gameSearchQuery)
+
+	router.Get("/bookSearch/{bName}/{page}", S.bookSearchQuery)
 
 	fmt.Printf("Server is serving on: http://localhost%s \n", S.addr)
 
