@@ -15,7 +15,7 @@ RETURNING *;
 
 -- name: UpdateCompletedList :exec
 UPDATE completed_titles
-  set list = $1
+  set list = list || $1 ::jsonb
 WHERE user_id = $2
 RETURNING *;
 
@@ -36,6 +36,16 @@ WHERE user_id = $1;
 
 -- name: UpdateBookList :exec
 UPDATE book_lists
+  set list = $1
+WHERE user_id = $2
+RETURNING *;
+
+-- name: GetShowListByUser :one
+SELECT list from show_lists
+WHERE user_id = $1;
+
+-- name: UpdateShowList :exec
+UPDATE show_lists
   set list = $1
 WHERE user_id = $2
 RETURNING *;

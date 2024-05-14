@@ -60,6 +60,18 @@ func (q *Queries) GetMovieListByUser(ctx context.Context, userID uuid.UUID) (jso
 	return list, err
 }
 
+const getShowListByUser = `-- name: GetShowListByUser :one
+SELECT list from show_lists
+WHERE user_id = $1
+`
+
+func (q *Queries) GetShowListByUser(ctx context.Context, userID uuid.UUID) (json.RawMessage, error) {
+	row := q.db.QueryRowContext(ctx, getShowListByUser, userID)
+	var list json.RawMessage
+	err := row.Scan(&list)
+	return list, err
+}
+
 const updateBookList = `-- name: UpdateBookList :exec
 UPDATE book_lists
   set list = $1
@@ -79,18 +91,18 @@ func (q *Queries) UpdateBookList(ctx context.Context, arg UpdateBookListParams) 
 
 const updateCompletedList = `-- name: UpdateCompletedList :exec
 UPDATE completed_titles
-  set list = $1
+  set list = list || $1 ::jsonb
 WHERE user_id = $2
 RETURNING id, user_id, list
 `
 
 type UpdateCompletedListParams struct {
-	List   json.RawMessage
-	UserID uuid.UUID
+	Column1 json.RawMessage
+	UserID  uuid.UUID
 }
 
 func (q *Queries) UpdateCompletedList(ctx context.Context, arg UpdateCompletedListParams) error {
-	_, err := q.db.ExecContext(ctx, updateCompletedList, arg.List, arg.UserID)
+	_, err := q.db.ExecContext(ctx, updateCompletedList, arg.Column1, arg.UserID)
 	return err
 }
 
@@ -125,5 +137,22 @@ type UpdateMovieListParams struct {
 
 func (q *Queries) UpdateMovieList(ctx context.Context, arg UpdateMovieListParams) error {
 	_, err := q.db.ExecContext(ctx, updateMovieList, arg.List, arg.UserID)
+	return err
+}
+
+const updateShowList = `-- name: UpdateShowList :exec
+UPDATE show_lists
+  set list = $1
+WHERE user_id = $2
+RETURNING id, user_id, list
+`
+
+type UpdateShowListParams struct {
+	List   json.RawMessage
+	UserID uuid.UUID
+}
+
+func (q *Queries) UpdateShowList(ctx context.Context, arg UpdateShowListParams) error {
+	_, err := q.db.ExecContext(ctx, updateShowList, arg.List, arg.UserID)
 	return err
 }
