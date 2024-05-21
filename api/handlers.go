@@ -248,7 +248,7 @@ func (s *Server) gameSearchQuery(w http.ResponseWriter, r *http.Request) {
 
 	gameName = strings.ReplaceAll(gameName, " ", "%20")
 
-	endpoint := fmt.Sprintf(`http://www.giantbomb.com/api/games/?api_key=%s&limit=15&offset=%d&filter=name:%s&format=json&field_list=id,genres,api_detail_url,name,image,deck&page=%s,`, os.Getenv("game_api_key"), searchOffset, gameName, pageNum)
+	endpoint := fmt.Sprintf(`http://www.giantbomb.com/api/games/?api_key=%s&limit=15&offset=%d&filter=name:%s&format=json&field_list=original_release_date,id,genres,api_detail_url,name,image,deck&page=%s,`, os.Getenv("game_api_key"), searchOffset, gameName, pageNum)
 
 	fmt.Println("This is the endpoint:", endpoint)
 
